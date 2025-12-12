@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TargetKu - Halaman Utama</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!--
+    ================================================
+    BAGIAN ONBOARDING (muncul sebagai lapisan di atas)
+    ================================================
+    -->
+    <div id="onboarding-overlay" class="onboarding-overlay">
+        <div class="mobile-screen">
+            <main class="onboarding-content">
+                <img src="https://via.placeholder.com/250" alt="Ilustrasi menabung" class="onboarding-image">
+                <h1 class="onboarding-title">Wujudkan Mimpimu!</h1>
+                <p class="onboarding-text">Catat setiap langkah menuju barang impianmu. Pantau progres dan raih target tepat waktu.</p>
+                <button id="start-button" class="onboarding-button">Mulai Sekarang</button>
+            </main>
+        </div>
+    </div>
+
+    <!--
+    ============================================
+    BAGIAN APLIKASI UTAMA
+    ============================================
+    -->
+    <div class="mobile-screen">
+        <header class="main-header">
+            <h1>TargetKu</h1>
+            <nav class="tabs">
+                <a href="index.html" class="tab-button active">Dalam Proses</a>
+                <a href="selesai.html" class="tab-button">Selesai</a>
+            </nav>
+        </header>
+        <main class="target-list">
+            <a href="detail-target.html" class="target-card">
+                <img src="https://via.placeholder.com/100" alt="Gambar Target" class="target-image">
+                <div class="card-content">
+                    <h2 class="target-name">Airpods Max</h2>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: 75%;"></div>
+                    </div>
+                    <p class="target-info">75% - Rp 7.500.000 / Rp 10.000.000</p>
+                </div>
+            </a>
+            <a href="detail-target.html" class="target-card">
+                <img src="https://via.placeholder.com/100" alt="Gambar Target" class="target-image">
+                <div class="card-content">
+                    <h2 class="target-name">Liburan ke Bali</h2>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: 50%;"></div>
+                    </div>
+                    <p class="target-info">50% - Rp 5.000.000 / Rp 10.000.000</p>
+                </div>
+            </a>
+        </main>
+        <a href="buat-target.html" class="fab">+</a>
+    </div>
+
+    <!--
+    ============================================
+    BAGIAN JAVASCRIPT YANG DIPERBARUI
+    ============================================
+    -->
+    <script>
+        const onboardingOverlay = document.getElementById('onboarding-overlay');
+        const startButton = document.getElementById('start-button');
+
+        // FUNGSI BARU: Cek status onboarding saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cek apakah 'ingatan' sudah ada di sessionStorage
+            if (sessionStorage.getItem('onboardingCompleted') === 'true') {
+                // Jika sudah ada, langsung sembunyikan onboarding tanpa animasi
+                onboardingOverlay.style.display = 'none';
+            }
+        });
+
+        // Fungsi saat tombol "Mulai Sekarang" diklik
+        startButton.addEventListener('click', function() {
+            // 1. Buat 'ingatan' bahwa onboarding sudah selesai
+            sessionStorage.setItem('onboardingCompleted', 'true');
+
+            // 2. Sembunyikan overlay dengan animasi fade-out
+            onboardingOverlay.style.opacity = '0';
+            setTimeout(function() {
+                onboardingOverlay.style.display = 'none';
+            }, 500); // Durasi harus sama dengan transisi di CSS
+        });
+    </script>
+    <script src="js/script.js"></script>
+</body>
+</html>

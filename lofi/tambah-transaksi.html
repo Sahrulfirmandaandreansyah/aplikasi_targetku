@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Transaksi</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="modal-background">
+        <div class="bottom-sheet">
+            <h2>Tambah Transaksi</h2>
+            <div class="frequency-selector">
+                <button class="freq-button active">Pemasukan</button>
+                <button class="freq-button">Pengeluaran</button>
+            </div>
+            <div class="form-group">
+                <label for="amount">Nominal</label>
+                <input type="text" id="amount" class="form-input large-text" placeholder="Rp 0">
+            </div>
+            <div class="form-group">
+                <label for="description">Deskripsi (Opsional)</label>
+                <input type="text" id="description" class="form-input" placeholder="Contoh: Bonus lembur">
+            </div>
+            <a href="detail-target.html" class="onboarding-button">Simpan Transaksi</a>
+        </div>
+    </div>
+    <script src="js/script.js"></script>
+</body>
+</html>
