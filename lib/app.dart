@@ -7,6 +7,9 @@ class TargetKuApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Panggil fungsi pembuat router di sini
+    final router = createAppRouter();
+
     return MaterialApp.router(
       title: 'TargetKu',
       debugShowCheckedModeBanner: false,
@@ -14,12 +17,13 @@ class TargetKuApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.indigo,
           primary: Colors.indigo,
-          secondary: const Color(0xFFFF8A80), // Coral
+          secondary: const Color(0xFFFF8A80),
         ),
         useMaterial3: true,
-        textTheme: GoogleFonts.poppinsTextTheme(), // Menggunakan Font Poppins
+        textTheme: GoogleFonts.poppinsTextTheme(),
       ),
-      routerConfig: appRouter, // Hubungkan GoRouter
+      // Gunakan router config
+      routerConfig: router,
     );
   }
 }

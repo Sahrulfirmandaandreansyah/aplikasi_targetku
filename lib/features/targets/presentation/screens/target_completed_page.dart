@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:aplikasi_targetku/core/utils/platform_file_utils.dart';
 import 'package:aplikasi_targetku/features/targets/domain/entities/target_entity.dart';
 
 class TargetCompletedPage extends StatelessWidget {
@@ -10,74 +14,97 @@ class TargetCompletedPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-    final dateFormatter = DateFormat('dd MMMM yyyy');
+
+    // Logic Gambar Aman
+    ImageProvider? imageProvider;
+    if (target.imageUrl != null && target.imageUrl!.isNotEmpty) {
+      if (fileExistsSync(target.imageUrl)) {
+        if (kIsWeb) {
+          imageProvider = NetworkImage(target.imageUrl!);
+        } else {
+          imageProvider = FileImage(File(target.imageUrl!));
+        }
+      }
+    }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Target Tercapai! 🎉"),
-        automaticallyImplyLeading: false, // Sembunyikan tombol back
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                "SELAMAT!",
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
+      backgroundColor: Colors.indigo,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Icon Piala / Bintang
+                const Icon(Icons.emoji_events_rounded, size: 100, color: Colors.amber),
+                const SizedBox(height: 24),
+                
+                const Text(
+                  "SELAMAT! 🎉",
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                "Kamu telah berhasil mencapai target:",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                target.name,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
+                const SizedBox(height: 8),
+                const Text(
+                  "Target Impianmu Tercapai",
+                  style: TextStyle(fontSize: 16, color: Colors.white70),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "Senilai ${currencyFormatter.format(target.targetAmount)}",
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.indigo,
-                ),
-              ),
-              const SizedBox(height: 24),
-              if (target.completedAt != null)
-                Text(
-                  "Tercapai pada: ${dateFormatter.format(target.completedAt!)}",
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-              const SizedBox(height: 48),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Kembali ke halaman utama (root)
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo,
-                    foregroundColor: Colors.white,
+                const SizedBox(height: 40),
+
+                // Kartu Target
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text("Kembali ke Halaman Utama"),
+                  child: Column(
+                    children: [
+                      if (imageProvider != null)
+                        Container(
+                          width: 100,
+                          height: 100,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+                          ),
+                        ),
+                      Text(
+                        target.name,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        currencyFormatter.format(target.targetAmount),
+                        style: const TextStyle(fontSize: 18, color: Colors.green, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 40),
+
+                // Tombol Kembali
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Kembali ke Home (Tab Selesai akan otomatis aktif jika logic benar)
+                      context.go('/'); 
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.indigo,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text("Kembali ke Beranda", style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

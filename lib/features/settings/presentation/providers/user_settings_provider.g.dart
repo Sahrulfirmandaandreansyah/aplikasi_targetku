@@ -1,25 +1,24 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'target_list_provider.dart';
+part of 'user_settings_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$targetListHash() => r'ddbf41e7e4ba788c77b6209ea65e58847905eefd';
+String _$isPremiumHash() => r'aa0a2d43ff815ff4de061ee2ad0e4e060c5c4e69';
 
-/// See also [TargetList].
-@ProviderFor(TargetList)
-final targetListProvider =
-    AutoDisposeStreamNotifierProvider<TargetList, List<TargetEntity>>.internal(
-  TargetList.new,
-  name: r'targetListProvider',
+/// See also [IsPremium].
+@ProviderFor(IsPremium)
+final isPremiumProvider = AutoDisposeNotifierProvider<IsPremium, bool>.internal(
+  IsPremium.new,
+  name: r'isPremiumProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$targetListHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$isPremiumHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$TargetList = AutoDisposeStreamNotifier<List<TargetEntity>>;
+typedef _$IsPremium = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

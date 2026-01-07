@@ -8,15 +8,13 @@ part 'target_list_provider.g.dart';
 class TargetList extends _$TargetList {
   @override
   Stream<List<TargetEntity>> build() {
-    // 1. Ambil repository dari DI
     final repository = ref.watch(targetRepositoryProvider);
     
-    // 2. Listen stream dari repository
+    // Gunakan watchAllTargets (STREAM)
     return repository.watchAllTargets().map((either) {
-      // 3. Buka bungkusan Either (Right = Data, Left = Error)
       return either.fold(
-        (failure) => throw failure.message, // Lempar error agar ditangkap UI AsyncError
-        (data) => data, // Kembalikan data list
+        (failure) => [],
+        (data) => data,
       );
     });
   }

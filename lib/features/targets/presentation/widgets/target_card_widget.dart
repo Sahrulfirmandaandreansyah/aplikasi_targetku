@@ -1,32 +1,35 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import 'package:aplikasi_targetku/core/constants/enums.dart';
 import 'package:aplikasi_targetku/core/di/dependency_injection.dart';
+import 'package:aplikasi_targetku/core/utils/platform_file_utils.dart'; // Pastikan util ini ada
 import 'package:aplikasi_targetku/features/targets/domain/entities/target_entity.dart';
 
-// Provider Khusus untuk menghitung saldo di kartu (Ringan)
-final targetBalanceProvider = FutureProvider.family<double, int>((ref, targetId) async {
+// --- UBAH JADI STREAM PROVIDER ---
+final targetBalanceStreamProvider = StreamProvider.family<double, int>((ref, targetId) {
   final txRepo = ref.watch(transactionRepositoryProvider);
-  // Kita ambil .first (sekali saja) agar tidak terlalu berat membebani UI list
-  // Atau bisa pakai watchTransactions(targetId).first
-  final result = await txRepo.watchTransactions(targetId).first;
   
-  return result.fold(
-    (l) => 0.0,
-    (transactions) {
-      double balance = 0;
-      for (var tx in transactions) {
-        if (tx.type == TransactionType.increase) {
-          balance += tx.amount;
-        } else {
-          balance -= tx.amount;
+  // Watch stream dari repository
+  return txRepo.watchTransactions(targetId).map((result) {
+    return result.fold(
+      (failure) => 0.0,
+      (transactions) {
+        double balance = 0;
+        for (var tx in transactions) {
+          if (tx.type == TransactionType.increase) {
+            balance += tx.amount;
+          } else {
+            balance -= tx.amount;
+          }
         }
-      }
-      return balance;
-    },
-  );
+        return balance;
+      },
+    );
+  });
 });
 
 class TargetCardWidget extends ConsumerWidget {
@@ -42,9 +45,20 @@ class TargetCardWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    
+    // --- GUNAKAN STREAM PROVIDER ---
+    final balanceAsync = ref.watch(targetBalanceStreamProvider(target.id));
 
-    // Watch Provider Saldo di sini
-    final balanceAsync = ref.watch(targetBalanceProvider(target.id));
+    ImageProvider? imageProvider;
+    if (target.imageUrl != null && target.imageUrl!.isNotEmpty) {
+      if (fileExistsSync(target.imageUrl)) {
+        if (kIsWeb) {
+          imageProvider = NetworkImage(target.imageUrl!);
+        } else {
+          imageProvider = FileImage(File(target.imageUrl!));
+        }
+      }
+    }
 
     return Card(
       elevation: 0,
@@ -61,28 +75,28 @@ class TargetCardWidget extends ConsumerWidget {
           padding: const EdgeInsets.all(12.0),
           child: Row(
             children: [
-              // --- Gambar ---
+              // Gambar
               Container(
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
                   color: Colors.indigo.shade50,
                   borderRadius: BorderRadius.circular(12),
-                  image: (target.imageUrl != null && File(target.imageUrl!).existsSync())
-                      ? DecorationImage(image: FileImage(File(target.imageUrl!)), fit: BoxFit.cover)
+                  image: imageProvider != null
+                      ? DecorationImage(image: imageProvider, fit: BoxFit.cover)
                       : null,
                 ),
-                child: (target.imageUrl == null || !File(target.imageUrl!).existsSync())
+                child: imageProvider == null
                     ? const Icon(Icons.savings_outlined, color: Colors.indigo, size: 32)
                     : null,
               ),
               const SizedBox(width: 16),
-
-              // --- Info & Progress ---
+              
+              // Info & Progress Bar
               Expanded(
                 child: balanceAsync.when(
                   data: (currentBalance) {
-                    // Hitung Progress
+                    // Logic Progress
                     final double progress = (target.targetAmount > 0)
                         ? (currentBalance / target.targetAmount).clamp(0.0, 1.0)
                         : 0.0;
@@ -104,7 +118,7 @@ class TargetCardWidget extends ConsumerWidget {
                         ),
                         const SizedBox(height: 8),
                         
-                        // Progress Bar
+                        // Bar
                         Row(
                           children: [
                             Expanded(
@@ -125,8 +139,9 @@ class TargetCardWidget extends ConsumerWidget {
                       ],
                     );
                   },
-                  loading: () => const LinearProgressIndicator(),
-                  error: (e, _) => const Text("Gagal memuat"),
+                  // Tampilan saat loading/error (tetap tampilkan kerangka biar gak kedip)
+                  loading: () => const LinearProgressIndicator(), 
+                  error: (_, __) => const SizedBox(),
                 ),
               ),
             ],

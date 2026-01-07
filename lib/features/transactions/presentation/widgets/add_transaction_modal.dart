@@ -6,8 +6,8 @@ import 'package:aplikasi_targetku/features/transactions/presentation/providers/t
 
 class AddTransactionModal extends ConsumerStatefulWidget {
   final int targetId;
-  final double currentBalance; // Tambah parameter ini
-  final double targetAmount;   // Tambah parameter ini
+  final double currentBalance; 
+  final double targetAmount;   
 
   const AddTransactionModal({
     super.key, 
@@ -24,22 +24,31 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
   final _amountController = TextEditingController();
   final _descController = TextEditingController();
   TransactionType _type = TransactionType.increase;
+  
+  // Formatter untuk validasi & display
   final _currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
   @override
   void initState() {
     super.initState();
+    // Tambahkan listener untuk format otomatis saat mengetik
     _amountController.addListener(_formatAmount);
   }
 
+  // Logic Format Angka (Rp 10.000)
   void _formatAmount() {
     final text = _amountController.text;
     if (text.isEmpty) return;
+    
+    // Hapus karakter non-digit
     final plainText = text.replaceAll(RegExp(r'[^0-9]'), '');
     if (plainText.isEmpty) return;
+    
     final number = int.tryParse(plainText);
     if (number != null) {
       final formattedText = _currencyFormatter.format(number);
+      
+      // Update text hanya jika berbeda agar kursor tidak lompat
       if (text != formattedText) {
         _amountController.value = TextEditingValue(
           text: formattedText,
@@ -58,7 +67,7 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
   }
 
   Future<void> _submit() async {
-    // 1. Parsing Input
+    // 1. Parsing Input (Hapus format Rp sebelum diproses)
     final amountStr = _amountController.text.replaceAll(RegExp(r'[^0-9]'), '');
     final double amount = double.tryParse(amountStr) ?? 0;
 
@@ -67,21 +76,21 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
       return;
     }
 
-    // 2. VALIDASI MAKSIMUM (Fitur Baru)
+    // 2. VALIDASI MAKSIMUM (Mencegah Kelebihan Bayar)
     if (_type == TransactionType.increase) {
       final sisaButuh = widget.targetAmount - widget.currentBalance;
+      // Beri toleransi sedikit (misal floating point error), tapi prinsipnya tidak boleh lebih
       if (amount > sisaButuh) {
-        final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ups! Cukup ${currencyFormatter.format(sisaButuh)} lagi untuk selesai.'),
+            content: Text('Ups! Cukup ${_currencyFormatter.format(sisaButuh)} lagi untuk selesai.'),
             backgroundColor: Colors.orange,
           )
         );
         return; // Batalkan proses
       }
     }
-    // 3. VALIDASI PENARIKAN (Opsional, jangan tarik lebih dari saldo)
+    // 3. VALIDASI PENARIKAN (Mencegah Saldo Minus)
     else if (_type == TransactionType.decrease) {
       if (amount > widget.currentBalance) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saldo tidak cukup untuk ditarik.')));
@@ -89,20 +98,23 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
       }
     }
 
+    // 4. Eksekusi Simpan
     bool success = false;
     try {
-      // 4. Eksekusi Simpan
       success = await ref.read(transactionFormNotifierProvider.notifier).addTransaction(
         targetId: widget.targetId,
-        amountStr: amountStr,
+        amountStr: amountStr, // Kirim angka murni string
         type: _type,
         description: _descController.text,
       );
+    } catch (e) {
+      // Catch unexpected error
+      success = false;
     } finally {
-      // 5. PERBAIKAN POPUP (Menggunakan Navigator)
-      // Modal harus selalu ditutup setelah attempt submit, baik sukses atau gagal
+      // 5. Handling UI Setelah Proses
       if (mounted) {
-        Navigator.of(context).pop(); 
+        Navigator.of(context).pop(); // Tutup Modal Dulu
+        
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Transaksi tersimpan! 💰'), backgroundColor: Colors.green),
@@ -162,6 +174,7 @@ class _AddTransactionModalState extends ConsumerState<AddTransactionModal> {
             decoration: InputDecoration(
               labelText: "Nominal",
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              // Tidak perlu prefixText 'Rp ' di sini karena sudah ada di controller valuenya
             ),
           ),
           const SizedBox(height: 12),

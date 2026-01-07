@@ -1,6 +1,6 @@
 name: aplikasi_targetku
 description: "A new Flutter project."
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 
 version: 1.0.0+1
 
@@ -24,21 +24,23 @@ dependencies:
   path_provider: ^2.1.1
   path: ^1.8.3
 
-  # --- UI & Utilities (INI YANG KURANG TADI) ---
-  google_fonts: ^6.1.0  # Untuk Font Poppins
+  # --- UI & Utilities ---
+  google_fonts: ^6.1.0
   intl: ^0.19.0   
-  image_picker: ^1.0.7      # Untuk Format Rupiah
+  image_picker: ^1.0.7
   fpdart: ^1.1.0
   uuid: ^4.2.1
   logger: ^2.0.2
+  universal_html: ^2.2.4 # Untuk support Web/Mobile file checking
 
   # --- Data Class ---
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
 
+  # --- Local Storage & Notification ---
   flutter_local_notifications: ^17.2.3
   timezone: ^0.9.2
-  universal_html: ^2.2.4
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
@@ -51,18 +53,31 @@ dev_dependencies:
   freezed: ^2.4.6
   json_serializable: ^6.7.1
   flutter_lints: ^3.0.0
+  
+  # --- Branding Assets ---
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.3.10
 
+# --- KONFIGURASI ICON ---
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon.png" # Siapkan gambar icon.png (1024x1024)
+  image_path: "assets/icon.png"
   min_sdk_android: 21
 
+# --- KONFIGURASI SPLASH SCREEN ---
 flutter_native_splash:
-  color: "#6366F1" # Warna Indigo (Sesuai tema app)
-  image: "assets/icon.png" # Logo di tengah
+  color: "#6366F1"
+  image: "assets/icon.png"
   branding: "assets/icon.png"
   color_dark: "#1E293B"
   fullscreen: true
+
+# --- KONFIGURASI FLUTTER (WAJIB ADA) ---
+flutter:
+  # Ini wajib true agar ikon Material (Panah, Home, dll) TIDAK kotak silang (X)
+  uses-material-design: true
+  
+  # Daftarkan folder assets agar gambar bisa dipakai di dalam app
+  assets:
+    - assets/
